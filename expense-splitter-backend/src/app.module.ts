@@ -3,12 +3,21 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { validationSchema } from './config/env.validation';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { GroupsModule } from './groups/groups.module';
+import { ExpensesModule } from './expenses/expenses.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+      validationSchema,
+      validationOptions: {
+        abortEarly: false,
+      },
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -26,6 +35,10 @@ import { AppService } from './app.service';
       }),
       inject: [ConfigService],
     }),
+    AuthModule,
+    UsersModule,
+    GroupsModule,
+    ExpensesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

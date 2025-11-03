@@ -1,0 +1,14 @@
+import { IsEnum, IsNotEmpty } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { GroupRole } from '../entities/group-member.entity';
+
+export class UpdateMemberRoleDto {
+  @ApiProperty({
+    example: 'admin',
+    description: 'New role for the member',
+    enum: GroupRole,
+  })
+  @IsEnum(GroupRole)
+  @IsNotEmpty()
+  role: GroupRole;
+}

@@ -12,6 +12,11 @@ const config_1 = require("@nestjs/config");
 const typeorm_1 = require("@nestjs/typeorm");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
+const env_validation_1 = require("./config/env.validation");
+const auth_module_1 = require("./auth/auth.module");
+const users_module_1 = require("./users/users.module");
+const groups_module_1 = require("./groups/groups.module");
+const expenses_module_1 = require("./expenses/expenses.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -21,6 +26,10 @@ exports.AppModule = AppModule = __decorate([
             config_1.ConfigModule.forRoot({
                 isGlobal: true,
                 envFilePath: '.env',
+                validationSchema: env_validation_1.validationSchema,
+                validationOptions: {
+                    abortEarly: false,
+                },
             }),
             typeorm_1.TypeOrmModule.forRootAsync({
                 imports: [config_1.ConfigModule],
@@ -38,6 +47,10 @@ exports.AppModule = AppModule = __decorate([
                 }),
                 inject: [config_1.ConfigService],
             }),
+            auth_module_1.AuthModule,
+            users_module_1.UsersModule,
+            groups_module_1.GroupsModule,
+            expenses_module_1.ExpensesModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
