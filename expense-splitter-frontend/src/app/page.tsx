@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -11,58 +12,62 @@ export default function Home() {
               Expense Splitter
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl">
-              Split expenses with friends and groups easily. Keep track of who owes what.
+              Masrafları arkadaşlarınız ve gruplarınızla kolayca paylaşın. Kim kime ne borçlu takip edin.
             </p>
           </div>
 
           <div className="flex gap-4">
-            <Button size="lg">
-              Get Started
-            </Button>
-            <Button size="lg" variant="outline">
-              Learn More
-            </Button>
+            <Link href="/register">
+              <Button size="lg">
+                Başlayın
+              </Button>
+            </Link>
+            <Link href="/login">
+              <Button size="lg" variant="outline">
+                Giriş Yap
+              </Button>
+            </Link>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 w-full max-w-5xl">
             <Card>
               <CardHeader>
-                <CardTitle>Create Groups</CardTitle>
+                <CardTitle>Grup Oluştur</CardTitle>
                 <CardDescription>
-                  Organize expenses with friends, roommates, or travel groups
+                  Arkadaşlarınız, ev arkadaşlarınız veya seyahat gruplarınızla masrafları organize edin
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Create unlimited groups and invite members to track shared expenses together.
+                  Sınırsız grup oluşturun ve ortak masrafları birlikte takip etmek için üyeleri davet edin.
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>Track Expenses</CardTitle>
+                <CardTitle>Masraf Takibi</CardTitle>
                 <CardDescription>
-                  Add expenses and see who paid for what
+                  Masrafları ekleyin ve kimin ne ödediğini görün
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Easily log expenses with descriptions, amounts, and who paid for each item.
+                  Açıklama, tutar ve kimin ödediği bilgileriyle masrafları kolayca kaydedin.
                 </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>Settle Up</CardTitle>
+                <CardTitle>Hesaplaşma</CardTitle>
                 <CardDescription>
-                  Calculate who owes whom automatically
+                  Kim kime ne kadar borçlu otomatik hesaplayın
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Get instant calculations of balances and settle debts with minimal transactions.
+                  Bakiyelerin anında hesaplanmasını sağlayın ve minimum işlemle borçları kapatın.
                 </p>
               </CardContent>
             </Card>

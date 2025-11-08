@@ -1,63 +1,67 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+import axios, { AxiosError, AxiosRequestConfig } from "axios";
+import { auth } from "@/lib/auth";
 
-interface ApiRequestOptions extends RequestInit {
-  token?: string;
-}
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
-async function apiRequest<T>(
-  endpoint: string,
-  options: ApiRequestOptions = {}
-): Promise<T> {
-  const { token, ...fetchOptions } = options;
+// Create axios instance
+const axiosInstance = axios.create({
+  baseURL: API_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  };
-
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+// Request interceptor - automatically add auth token
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const token = auth.getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
+);
 
-  const response = await fetch(`${API_URL}${endpoint}`, {
-    ...fetchOptions,
-    headers,
-  });
+// Response interceptor - handle errors globally
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error: AxiosError<{ message?: string; statusCode?: number }>) => {
+    // Handle 401 errors (unauthorized)
+    if (error.response?.status === 401) {
+      auth.clearAuth();
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      }
+    }
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({
-      message: 'An error occurred',
-    }));
-    throw new Error(error.message || `HTTP ${response.status}`);
+    // Extract error message
+    const errorMessage =
+      error.response?.data?.message ||
+      error.message ||
+      "Bir hata oluştu";
+
+    return Promise.reject(new Error(errorMessage));
   }
-
-  return response.json();
-}
+);
 
 export const api = {
-  get: <T>(endpoint: string, options?: ApiRequestOptions) =>
-    apiRequest<T>(endpoint, { ...options, method: 'GET' }),
+  get: <T>(endpoint: string, config?: AxiosRequestConfig) =>
+    axiosInstance.get<T>(endpoint, config).then((res) => res.data),
 
-  post: <T>(endpoint: string, data?: unknown, options?: ApiRequestOptions) =>
-    apiRequest<T>(endpoint, {
-      ...options,
-      method: 'POST',
-      body: JSON.stringify(data),
-    }),
+  post: <T>(endpoint: string, data?: unknown, config?: AxiosRequestConfig) =>
+    axiosInstance.post<T>(endpoint, data, config).then((res) => res.data),
 
-  put: <T>(endpoint: string, data?: unknown, options?: ApiRequestOptions) =>
-    apiRequest<T>(endpoint, {
-      ...options,
-      method: 'PUT',
-      body: JSON.stringify(data),
-    }),
+  put: <T>(endpoint: string, data?: unknown, config?: AxiosRequestConfig) =>
+    axiosInstance.put<T>(endpoint, data, config).then((res) => res.data),
 
-  delete: <T>(endpoint: string, options?: ApiRequestOptions) =>
-    apiRequest<T>(endpoint, { ...options, method: 'DELETE' }),
+  patch: <T>(endpoint: string, data?: unknown, config?: AxiosRequestConfig) =>
+    axiosInstance.patch<T>(endpoint, data, config).then((res) => res.data),
 
-  patch: <T>(endpoint: string, data?: unknown, options?: ApiRequestOptions) =>
-    apiRequest<T>(endpoint, {
-      ...options,
-      method: 'PATCH',
-      body: JSON.stringify(data),
-    }),
+  delete: <T>(endpoint: string, config?: AxiosRequestConfig) =>
+    axiosInstance.delete<T>(endpoint, config).then((res) => res.data),
 };
+
+export default axiosInstance;
