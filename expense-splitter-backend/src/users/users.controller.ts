@@ -4,9 +4,11 @@ import {
   Patch,
   Body,
   Param,
+  Query,
   UseGuards,
   HttpCode,
   HttpStatus,
+  NotFoundException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -14,6 +16,7 @@ import {
   ApiResponse,
   ApiBearerAuth,
   ApiParam,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -28,6 +31,27 @@ import { User } from './entities/user.entity';
 @ApiBearerAuth()
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Get('search')
+  @ApiOperation({ summary: 'Search user by email' })
+  @ApiQuery({ name: 'email', description: 'Email address to search for', required: true })
+  @ApiResponse({
+    status: 200,
+    description: 'User found',
+    type: UserResponseDto,
+  })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  async searchByEmail(@Query('email') email: string) {
+    if (!email) {
+      throw new NotFoundException('Email parameter is required');
+    }
+    const user = await this.usersService.findByEmail(email);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return new UserResponseDto(user);
+  }
 
   @Get('me')
   @ApiOperation({ summary: 'Get current user profile' })

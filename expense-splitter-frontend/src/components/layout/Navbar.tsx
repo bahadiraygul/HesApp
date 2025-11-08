@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Menu, LogOut, User, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -71,13 +72,11 @@ export function Navbar() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <User className="mr-2 h-4 w-4" />
-              <span>Profil</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Settings className="mr-2 h-4 w-4" />
-              <span>Ayarlar</span>
+            <DropdownMenuItem asChild>
+              <Link href="/profile">
+                <User className="mr-2 h-4 w-4" />
+                <span>Profil</span>
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem

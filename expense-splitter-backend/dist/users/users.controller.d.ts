@@ -5,6 +5,7 @@ import { User } from './entities/user.entity';
 export declare class UsersController {
     private readonly usersService;
     constructor(usersService: UsersService);
+    searchByEmail(email: string): Promise<UserResponseDto>;
     getProfile(user: User): UserResponseDto;
     updateProfile(updateUserDto: UpdateUserDto, user: User): Promise<UserResponseDto>;
     findOne(id: string): Promise<UserResponseDto>;

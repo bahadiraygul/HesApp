@@ -77,7 +77,7 @@ export class CreateExpenseDto {
   })
   @IsDateString()
   @IsNotEmpty()
-  date: string;
+  date: Date;
 
   @ApiProperty({
     example: '550e8400-e29b-41d4-a716-446655440000',

@@ -65,8 +65,12 @@ __decorate([
 ], ExpensesController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Get all expenses for a group' }),
-    (0, swagger_1.ApiQuery)({ name: 'groupId', description: 'Group ID to filter expenses' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all expenses (optionally filtered by group)' }),
+    (0, swagger_1.ApiQuery)({
+        name: 'groupId',
+        description: 'Group ID to filter expenses (optional - if not provided, returns all user expenses)',
+        required: false
+    }),
     (0, swagger_1.ApiResponse)({
         status: 200,
         description: 'List of expenses retrieved successfully',
@@ -75,7 +79,7 @@ __decorate([
     __param(0, (0, common_1.Query)('groupId')),
     __param(1, (0, current_user_decorator_1.CurrentUser)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, user_entity_1.User]),
+    __metadata("design:paramtypes", [Object, user_entity_1.User]),
     __metadata("design:returntype", Promise)
 ], ExpensesController.prototype, "findAll", null);
 __decorate([

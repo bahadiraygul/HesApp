@@ -50,14 +50,18 @@ export class ExpensesController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all expenses for a group' })
-  @ApiQuery({ name: 'groupId', description: 'Group ID to filter expenses' })
+  @ApiOperation({ summary: 'Get all expenses (optionally filtered by group)' })
+  @ApiQuery({
+    name: 'groupId',
+    description: 'Group ID to filter expenses (optional - if not provided, returns all user expenses)',
+    required: false
+  })
   @ApiResponse({
     status: 200,
     description: 'List of expenses retrieved successfully',
   })
   @ApiResponse({ status: 403, description: 'Not a member of the group' })
-  async findAll(@Query('groupId') groupId: string, @CurrentUser() user: User) {
+  async findAll(@Query('groupId') groupId: string | undefined, @CurrentUser() user: User) {
     return await this.expensesService.findAll(groupId, user.id);
   }
 

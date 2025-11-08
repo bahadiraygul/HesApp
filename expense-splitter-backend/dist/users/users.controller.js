@@ -26,6 +26,16 @@ let UsersController = class UsersController {
     constructor(usersService) {
         this.usersService = usersService;
     }
+    async searchByEmail(email) {
+        if (!email) {
+            throw new common_1.NotFoundException('Email parameter is required');
+        }
+        const user = await this.usersService.findByEmail(email);
+        if (!user) {
+            throw new common_1.NotFoundException('User not found');
+        }
+        return new user_response_dto_1.UserResponseDto(user);
+    }
     getProfile(user) {
         return new user_response_dto_1.UserResponseDto(user);
     }
@@ -39,6 +49,22 @@ let UsersController = class UsersController {
     }
 };
 exports.UsersController = UsersController;
+__decorate([
+    (0, common_1.Get)('search'),
+    (0, swagger_1.ApiOperation)({ summary: 'Search user by email' }),
+    (0, swagger_1.ApiQuery)({ name: 'email', description: 'Email address to search for', required: true }),
+    (0, swagger_1.ApiResponse)({
+        status: 200,
+        description: 'User found',
+        type: user_response_dto_1.UserResponseDto,
+    }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'User not found' }),
+    (0, swagger_1.ApiResponse)({ status: 401, description: 'Unauthorized' }),
+    __param(0, (0, common_1.Query)('email')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "searchByEmail", null);
 __decorate([
     (0, common_1.Get)('me'),
     (0, swagger_1.ApiOperation)({ summary: 'Get current user profile' }),

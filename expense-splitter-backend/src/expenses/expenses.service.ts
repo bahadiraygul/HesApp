@@ -67,15 +67,35 @@ export class ExpensesService {
     return await this.findOne(savedExpense.id, userId);
   }
 
-  async findAll(groupId: string, userId: string): Promise<Expense[]> {
-    // Check if user is a member of the group
-    await this.groupsService.checkMembership(groupId, userId);
+  async findAll(groupId: string | undefined, userId: string): Promise<Expense[]> {
+    // If groupId is provided, check membership and return group expenses
+    if (groupId) {
+      await this.groupsService.checkMembership(groupId, userId);
+      return await this.expensesRepository.find({
+        where: { groupId },
+        relations: ['paidBy', 'group', 'splits', 'splits.user'],
+        order: { date: 'DESC', createdAt: 'DESC' },
+      });
+    }
 
-    return await this.expensesRepository.find({
-      where: { groupId },
-      relations: ['paidBy', 'splits', 'splits.user'],
-      order: { date: 'DESC', createdAt: 'DESC' },
-    });
+    // If no groupId, return all expenses from user's groups
+    const userGroups = await this.groupsService.findAll(userId);
+    const groupIds = userGroups.map((group) => group.id);
+
+    if (groupIds.length === 0) {
+      return [];
+    }
+
+    return await this.expensesRepository
+      .createQueryBuilder('expense')
+      .leftJoinAndSelect('expense.paidBy', 'paidBy')
+      .leftJoinAndSelect('expense.group', 'group')
+      .leftJoinAndSelect('expense.splits', 'splits')
+      .leftJoinAndSelect('splits.user', 'user')
+      .where('expense.groupId IN (:...groupIds)', { groupIds })
+      .orderBy('expense.date', 'DESC')
+      .addOrderBy('expense.createdAt', 'DESC')
+      .getMany();
   }
 
   async findOne(id: string, userId: string): Promise<Expense> {
@@ -125,18 +145,17 @@ export class ExpensesService {
       await this.expenseSplitsRepository.save(splits);
     }
 
-    // Update expense
-    Object.assign(expense, {
+    // Using a direct update is safer than Object.assign and save,
+    // which can sometimes cause issues with relations.
+    const updatePayload: Partial<UpdateExpenseDto> = {
       description: updateExpenseDto.description ?? expense.description,
       amount: updateExpenseDto.amount ?? expense.amount,
       currency: updateExpenseDto.currency ?? expense.currency,
       category: updateExpenseDto.category ?? expense.category,
-      date: updateExpenseDto.date
-        ? new Date(updateExpenseDto.date)
-        : expense.date,
-    });
+      date: updateExpenseDto.date ? new Date(updateExpenseDto.date) : expense.date, // This line is correct
+    };
 
-    await this.expensesRepository.save(expense);
+    await this.expensesRepository.update(id, updatePayload);
 
     return await this.findOne(id, userId);
   }

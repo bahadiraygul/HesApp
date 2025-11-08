@@ -7,7 +7,7 @@ export declare class CreateExpenseDto {
     amount: number;
     currency?: string;
     category?: string;
-    date: string;
+    date: Date;
     groupId: string;
     splits: SplitDto[];
 }

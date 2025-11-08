@@ -11,7 +11,7 @@ export declare class ExpensesService {
     private readonly groupsService;
     constructor(expensesRepository: Repository<Expense>, expenseSplitsRepository: Repository<ExpenseSplit>, groupsService: GroupsService);
     create(createExpenseDto: CreateExpenseDto, userId: string): Promise<Expense>;
-    findAll(groupId: string, userId: string): Promise<Expense[]>;
+    findAll(groupId: string | undefined, userId: string): Promise<Expense[]>;
     findOne(id: string, userId: string): Promise<Expense>;
     update(id: string, updateExpenseDto: UpdateExpenseDto, userId: string): Promise<Expense>;
     remove(id: string, userId: string): Promise<void>;

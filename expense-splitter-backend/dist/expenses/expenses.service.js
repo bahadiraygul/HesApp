@@ -50,12 +50,29 @@ let ExpensesService = class ExpensesService {
         return await this.findOne(savedExpense.id, userId);
     }
     async findAll(groupId, userId) {
-        await this.groupsService.checkMembership(groupId, userId);
-        return await this.expensesRepository.find({
-            where: { groupId },
-            relations: ['paidBy', 'splits', 'splits.user'],
-            order: { date: 'DESC', createdAt: 'DESC' },
-        });
+        if (groupId) {
+            await this.groupsService.checkMembership(groupId, userId);
+            return await this.expensesRepository.find({
+                where: { groupId },
+                relations: ['paidBy', 'group', 'splits', 'splits.user'],
+                order: { date: 'DESC', createdAt: 'DESC' },
+            });
+        }
+        const userGroups = await this.groupsService.findAll(userId);
+        const groupIds = userGroups.map((group) => group.id);
+        if (groupIds.length === 0) {
+            return [];
+        }
+        return await this.expensesRepository
+            .createQueryBuilder('expense')
+            .leftJoinAndSelect('expense.paidBy', 'paidBy')
+            .leftJoinAndSelect('expense.group', 'group')
+            .leftJoinAndSelect('expense.splits', 'splits')
+            .leftJoinAndSelect('splits.user', 'user')
+            .where('expense.groupId IN (:...groupIds)', { groupIds })
+            .orderBy('expense.date', 'DESC')
+            .addOrderBy('expense.createdAt', 'DESC')
+            .getMany();
     }
     async findOne(id, userId) {
         const expense = await this.expensesRepository.findOne({
@@ -84,16 +101,14 @@ let ExpensesService = class ExpensesService {
             }));
             await this.expenseSplitsRepository.save(splits);
         }
-        Object.assign(expense, {
+        const updatePayload = {
             description: updateExpenseDto.description ?? expense.description,
             amount: updateExpenseDto.amount ?? expense.amount,
             currency: updateExpenseDto.currency ?? expense.currency,
             category: updateExpenseDto.category ?? expense.category,
-            date: updateExpenseDto.date
-                ? new Date(updateExpenseDto.date)
-                : expense.date,
-        });
-        await this.expensesRepository.save(expense);
+            date: updateExpenseDto.date ? new Date(updateExpenseDto.date) : expense.date,
+        };
+        await this.expensesRepository.update(id, updatePayload);
         return await this.findOne(id, userId);
     }
     async remove(id, userId) {

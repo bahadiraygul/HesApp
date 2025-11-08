@@ -7,9 +7,9 @@ import { LayoutDashboard, Users, Receipt, TrendingUp } from "lucide-react";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Gruplar", href: "/dashboard/groups", icon: Users },
-  { name: "Masraflar", href: "/dashboard/expenses", icon: Receipt },
-  { name: "Bakiye", href: "/dashboard/balance", icon: TrendingUp },
+  { name: "Gruplar", href: "/groups", icon: Users },
+  { name: "Masraflar", href: "/expenses", icon: Receipt },
+  { name: "Bakiye", href: "/balance", icon: TrendingUp },
 ];
 
 export function Sidebar() {

@@ -95,7 +95,7 @@ __decorate([
     }),
     (0, class_validator_1.IsDateString)(),
     (0, class_validator_1.IsNotEmpty)(),
-    __metadata("design:type", String)
+    __metadata("design:type", Date)
 ], CreateExpenseDto.prototype, "date", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({
